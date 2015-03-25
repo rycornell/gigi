@@ -1,0 +1,64 @@
+<!doctype html>
+<html>
+  <head>
+    <title>TFS Effort Calculator</title>
+    <style>
+      body {
+        font-family: "Segoe UI", "Lucida Grande", Tahoma, sans-serif;
+        font-size: 13px;
+        min-width: 200px;        
+      }
+      table{
+        width:100%;
+        border-collapse: collapse;
+      }
+      td{
+        padding:4px;
+      }
+      td.label{
+        text-align: left;
+      }
+      td.effort{
+        text-align: right;
+      }
+      tr.last td{
+        border-top:1px dotted #ccc;
+        background-color: #efefef;
+        font-weight: bold;
+      }
+    </style>
+
+    <!--
+      - JavaScript and HTML must be in separate files: see our Content Security
+      - Policy documentation[1] for details and explanation.
+      -
+      - [1]: https://developer.chrome.com/extensions/contentSecurityPolicy
+     -->     
+    <script src="calc.js"></script>
+  </head>
+  <body>
+
+  <table>
+    <tbody>
+      <tr>
+        <td class="label">Done</td>
+        <td class="effort"><span id="doneEffort">???</span></td>
+      </tr>
+      <tr>
+        <td class="label">Committed</td>
+        <td class="effort"><span id="committedEffort">???</span></td>
+      </tr>
+      <tr>
+        <td class="label">Approved</td>
+        <td class="effort"><span id="approvedEffort">???</span></td>
+      </tr>
+      <tr class="last">
+        <td class="label">Total</td>
+        <td class="effort"><span id="totalEffort">???</span></td>
+      </tr>
+    </tbody>
+  </table>
+
+  </body>
+</html>
+
