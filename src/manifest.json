@@ -11,12 +11,11 @@
     "default_title": "TFS Effort Calculator"
   },
   "permissions": [
-    "activeTab",
-    "https://tfs.*/*"
+    "activeTab"
   ],
 
   "content_scripts": [ {
     "js": [ "jquery-2.1.3.min.js", "background.js" ],
-    "matches": [ "https://tfs.*/*"]
+    "matches": [ "http://*/*", "https://*/*" ]
   }]
 }
