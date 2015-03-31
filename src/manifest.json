@@ -13,9 +13,9 @@
   "permissions": [
     "activeTab"
   ],
-
+// need this to avoid cross-origin access policy error
   "content_scripts": [ {
-    "js": [ "jquery-2.1.3.min.js", "background.js" ],
+    "js": [ "background.js" ],
     "matches": [ "http://*/*", "https://*/*" ]
   }]
 }
