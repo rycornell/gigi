@@ -1,21 +1,48 @@
 function loadAllEffort() {
 
-    // ajax load this url and parse DOM
-    var baseUrl = '';
-    var backlogJsonUrl = baseUrl + '';
-    var sprintUrl = baseUrl + '';
+    // ajax load this url and parse DOM   
 
-    chrome.tabs.getSelected(null, function(tab) {
-        var tabUrl = tab.url;
+    chrome.tabs.getSelected(null, onTabLoaded);
+}
 
-        loadHtmlData(tabUrl, function(data) {
-            calculateEffort('Sprint ' + tabUrl.slice(-2), data);
-        });
+function onTabLoaded(tab) {
+    var tabUrl = tab.url;
+
+    var urlSegments = parseUrl(tabUrl);
+
+    if (urlSegments == null) {
+        $('body').html('No backlog data found.');
+        return;
+    }
+
+    loadHtmlData(urlSegments.fullUrl, function(data) {
+        var effort = calculateEffort(data);
+        appendEffort(data.sprintData.name, ' ( ' + data.sprintData.dates + ' ) ', effort);
     });
 
-    loadJsonData(backlogJsonUrl, function(data) {
-        calculateEffort('Backlog', data);
+    loadJsonData(urlSegments.backlogDataUrl, function(data) {
+        var effort = calculateEffort(data);
+        appendEffort('Backlog', '', effort);
     });
+}
+
+function parseUrl(url) {
+    // sample urls:
+    // https://tfs.company.com/tfs/folder/subfolder/teamname/
+    // https://tfs.company.com/tfs/folder/subfolder/teamname/_api/_backlog/backlogPayload';
+    // https://tfs.company.com/tfs/folder/subfolder/teamname/_backlogs/Iteration/Even/Sprint%2030';
+
+    var re = /(https\:\/\/tfs\.\w+\.com\/tfs\/)(.*)\/\_backlogs\/(.*)/i;
+    var matches = url.match(re);
+    if (matches == null || matches.length < 1) return null;
+
+    return {
+        fullUrl: url,
+        baseUrl: matches[1],
+        teamPath: matches[2],
+        iterationPath: matches[3],
+        backlogDataUrl: matches[1] + matches[2] + '/_api/_backlog/backlogPayload'
+    };
 }
 
 function loadHtmlData(url, callback) {
@@ -25,8 +52,13 @@ function loadHtmlData(url, callback) {
         var grid = html.find('div.productbacklog-grid-results');
         var script = grid.find('script.options');
         var scriptText = script.text();
-
         var backlogData = JSON.parse(scriptText);
+
+        var sprint = html.find('div.sprint-dates-working-days');
+        script = sprint.find('script.options');
+        scriptText = script.text();
+        backlogData.sprintData = JSON.parse(scriptText);
+
         callback(backlogData);
     });
 }
@@ -37,7 +69,7 @@ function loadJsonData(url, callback) {
     });
 }
 
-function calculateEffort(title, data) {
+function calculateEffort(data) {
     var stateColumnIndex = findColumn(/.*State$/i, data.pageColumns);
     var effortColumnIndex = findColumn(/.*Effort$/i, data.pageColumns);
 
@@ -67,9 +99,12 @@ function calculateEffort(title, data) {
         }
     }
 
-    var total = done + committed + approved;
-
-    appendEffort(title, total, done, committed, approved);
+    return {
+        done: done,
+        committed: committed,
+        approved: approved,
+        total: done + committed + approved
+    };
 }
 
 function findColumn(labelRe, columns) {
@@ -80,26 +115,29 @@ function findColumn(labelRe, columns) {
     }
 }
 
-function appendEffort(title, total, done, committed, approved) {
+function appendEffort(title, subtitle, data) {
     var html = [];
-    html.push('<h4>' + title + '</h4>');    
+    html.push('<div class="title">');
+    html.push('<h4>' + title + '</h4>');
+    html.push('<small>' + subtitle + '</small>');
+    html.push('</div>');
     html.push('<table>');
     html.push('<tbody>');
     html.push('<tr>');
     html.push('<td class="label">Done</td>');
-    html.push('<td class="effort"><span>' + done + '</span></td>');
+    html.push('<td class="effort"><span>' + data.done + '</span></td>');
     html.push('</tr>');
     html.push('<tr>');
     html.push('<td class="label">Committed</td>');
-    html.push('<td class="effort"><span>' + committed + '</span></td>');
+    html.push('<td class="effort"><span>' + data.committed + '</span></td>');
     html.push('</tr>');
     html.push('<tr>');
     html.push('<td class="label">Approved</td>');
-    html.push('<td class="effort"><span>' + approved + '</span></td>');
+    html.push('<td class="effort"><span>' + data.approved + '</span></td>');
     html.push('</tr>');
     html.push('<tr class="last">');
     html.push('<td class="label">Total</td>');
-    html.push('<td class="effort"><span>' + total + '</span></td>');
+    html.push('<td class="effort"><span>' + data.total + '</span></td>');
     html.push('</tr>');
     html.push('</tbody>');
     html.push('</table>');
