@@ -31,8 +31,9 @@ function parseUrl(url) {
     // https://tfs.company.com/tfs/folder/subfolder/teamname/
     // https://tfs.company.com/tfs/folder/subfolder/teamname/_api/_backlog/backlogPayload';
     // https://tfs.company.com/tfs/folder/subfolder/teamname/_backlogs/Iteration/Even/Sprint%2030';
+    // https://tfs.company.com/tfs/folder/subfolder/teamname/_backlogs#_a=backlog&hub=Backlog items
 
-    var re = /(https\:\/\/tfs\.\w+\.com\/tfs\/)(.*)\/\_backlogs\/(.*)/i;
+    var re = /(https\:\/\/tfs\.\w+\.com\/tfs\/)(.*)\/\_backlogs\/?(.*)?/i;
     var matches = url.match(re);
     if (matches == null || matches.length < 1) return null;
 

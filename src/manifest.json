@@ -3,7 +3,7 @@
 
   "name": "TFS Effort Calculator",
   "description": "Calculates the total effort on the backlog",
-  "version": "1.0",
+  "version": "1.1",
 
   "browser_action": {
     "default_icon": "calculator.png",
@@ -13,7 +13,6 @@
   "permissions": [
     "activeTab"
   ],
-// need this to avoid cross-origin access policy error
   "content_scripts": [ {
     "js": [ "background.js" ],
     "matches": [ "http://*/*", "https://*/*" ]
